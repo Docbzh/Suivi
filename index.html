@@ -345,30 +345,30 @@ const SLOT_DEFS = [
 ];
 
 const WEEK_PLAN = [
-  {day:'Lundi', type:'muscu', label:'Haut du corps — Poussée', exercises:[
+  {day:'Lundi', type:'muscu', label:'Haut du corps — Poussée', warmup:"5-8 min : marche rapide sur tapis + rotations d'épaules et de bras pour préparer les articulations.", exercises:[
     {id:'lu1', name:'Développé couché haltères', target:'4 x 8-10'},
     {id:'ve2', name:'Développé épaules haltères', target:'4 x 10'},
     {id:'lu3', name:'Élévations latérales', target:'3 x 15'},
     {id:'lu5', name:'Extension triceps haltère (nuque)', target:'3 x 12'},
     {id:'me5', name:'Planche gainage', target:'3 x 45 s'}
-  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer."},
+  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer.", stretch:"5 min d'étirements : pectoraux, épaules et triceps, chaque position tenue 20-30 s."},
   {day:'Mardi', type:'cardio', label:'Cardio tapis', desc:"45 à 50 min : 8 min d'échauffement en marche, puis fractionné varié (30s effort / 90s récup, en variant vitesse et inclinaison), retour au calme les 5 dernières minutes."},
-  {day:'Mercredi', type:'muscu', label:'Bas du corps + fessiers', exercises:[
+  {day:'Mercredi', type:'muscu', label:'Bas du corps + fessiers', warmup:"5-8 min : marche rapide sur tapis + squats sans charge et fentes lentes pour activer les jambes.", exercises:[
     {id:'me1', name:'Squat gobelet haltère', target:'4 x 10'},
     {id:'me2', name:'Fentes marchées haltères', target:'3 x 12 / jambe'},
     {id:'me3', name:'Soulevé de terre roumain', target:'4 x 10'},
     {id:'me4', name:'Hip thrust haltère (sur les hanches)', target:'3 x 15'},
     {id:'me6', name:'Mollets debout haltères', target:'3 x 15'},
     {id:'me5', name:'Planche gainage', target:'3 x 45 s'}
-  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer."},
+  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer.", stretch:"5 min d'étirements : quadriceps, ischio-jambiers et fessiers, chaque position tenue 20-30 s."},
   {day:'Jeudi', type:'repos', label:'Récupération active', desc:'45 à 60 min de marche continue à allure modérée sur le tapis, plus quelques étirements. Séance volontairement légère — elle protège la régularité sur la durée.'},
-  {day:'Vendredi', type:'muscu', label:'Haut du corps — Tirage', exercises:[
+  {day:'Vendredi', type:'muscu', label:'Haut du corps — Tirage', warmup:"5-8 min : marche rapide sur tapis + rotations d'épaules et tirages légers à vide pour préparer le dos.", exercises:[
     {id:'ve3', name:'Rowing haltères buste penché', target:'4 x 12'},
     {id:'lu2', name:'Rowing haltère un bras', target:'4 x 10 / bras'},
     {id:'lu4', name:'Curl biceps haltères', target:'3 x 12'},
     {id:'ve5', name:'Gainage planche latérale', target:'3 x 30 s / côté'}
-  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer."},
-  {day:'Samedi', type:'cardio', label:'Cardio long', desc:"45 à 60 min de marche à allure soutenue ou fractionné long, en variant l'inclinaison régulièrement pour ne pas s'ennuyer."},
+  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer.", stretch:"5 min d'étirements : dos, épaules et biceps, chaque position tenue 20-30 s."},
+  {day:'Samedi', type:'cardio', label:'Cardio long', desc:"45 à 60 min : 5 min d'échauffement en marche, puis allure soutenue ou fractionné long en variant l'inclinaison, et 5 min de retour au calme + étirements des jambes en fin de séance."},
   {day:'Dimanche', type:'repos', label:'Repos', desc:'Repos complet. Mobilité ou étirements en option, rien d\'obligatoire.'}
 ];
 
@@ -488,7 +488,9 @@ function renderDays(){
 
     let bodyHtml = '';
     if (plan.type === 'muscu'){
-      bodyHtml = plan.exercises.map(ex => {
+      const warmupHtml = plan.warmup ? `<div class="cardio-desc">🔥 <b style="color:var(--text);">Échauffement</b><br>${plan.warmup}</div>` : '';
+      const stretchHtml = plan.stretch ? `<div class="cardio-desc" style="margin-top:8px;">🧘 <b style="color:var(--text);">Étirements</b><br>${plan.stretch}</div>` : '';
+      bodyHtml = warmupHtml + plan.exercises.map(ex => {
         const h = history[ex.id];
         const lastLine = h ? `Dernière fois : ${h.weight} kg × ${h.reps}` : 'Première séance — note ta charge de départ';
         return `
@@ -505,7 +507,7 @@ function renderDays(){
             <button onclick="logExercise('${ex.id}')">Noter</button>
           </div>
         </div>`;
-      }).join('') + (plan.finisher ? `<div class="cardio-desc">🏃 ${plan.finisher}</div>` : '');
+      }).join('') + (plan.finisher ? `<div class="cardio-desc">🏃 ${plan.finisher}</div>` : '') + stretchHtml;
     } else {
       bodyHtml = `<div class="cardio-desc">${plan.desc}</div>`;
     }
