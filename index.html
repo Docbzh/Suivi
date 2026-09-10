@@ -344,30 +344,30 @@ const SLOT_DEFS = [
 ];
 
 const WEEK_PLAN = [
-  {day:'Lundi', type:'muscu', label:'Haut du corps', exercises:[
+  {day:'Lundi', type:'muscu', label:'Haut du corps — Poussée', exercises:[
     {id:'lu1', name:'Développé couché haltères', target:'4 x 8-10'},
-    {id:'lu2', name:'Rowing haltère un bras', target:'4 x 10 / bras'},
-    {id:'lu3', name:'Élévations latérales', target:'3 x 12'},
-    {id:'lu4', name:'Curl biceps haltères', target:'3 x 12'},
-    {id:'lu5', name:'Extension triceps haltère (nuque)', target:'3 x 12'}
-  ]},
-  {day:'Mardi', type:'cardio', label:'Fractionné tapis', desc:"15 à 20 min sur le tapis : 30 secondes en course ou allure rapide, 90 secondes en marche pour récupérer. Augmente l'inclinaison si tu veux corser l'effort sans courir plus vite."},
-  {day:'Mercredi', type:'muscu', label:'Bas du corps + gainage', exercises:[
+    {id:'ve2', name:'Développé épaules haltères', target:'4 x 10'},
+    {id:'lu3', name:'Élévations latérales', target:'3 x 15'},
+    {id:'lu5', name:'Extension triceps haltère (nuque)', target:'3 x 12'},
+    {id:'me5', name:'Planche gainage', target:'3 x 45 s'}
+  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer."},
+  {day:'Mardi', type:'cardio', label:'Cardio tapis', desc:"45 à 50 min : 8 min d'échauffement en marche, puis fractionné varié (30s effort / 90s récup, en variant vitesse et inclinaison), retour au calme les 5 dernières minutes."},
+  {day:'Mercredi', type:'muscu', label:'Bas du corps + fessiers', exercises:[
     {id:'me1', name:'Squat gobelet haltère', target:'4 x 10'},
     {id:'me2', name:'Fentes marchées haltères', target:'3 x 12 / jambe'},
     {id:'me3', name:'Soulevé de terre roumain', target:'4 x 10'},
     {id:'me4', name:'Hip thrust haltère (sur les hanches)', target:'3 x 15'},
-    {id:'me5', name:'Planche gainage', target:'3 x 30-45 s'}
-  ]},
-  {day:'Jeudi', type:'repos', label:'Actif léger', desc:'20-30 min de marche tranquille sur le tapis, allure de récupération. Le corps digère la musculation.'},
-  {day:'Vendredi', type:'muscu', label:'Full body', exercises:[
-    {id:'ve1', name:'Squat haltères', target:'4 x 10'},
-    {id:'ve2', name:'Développé épaules haltères', target:'3 x 10'},
+    {id:'me6', name:'Mollets debout haltères', target:'3 x 15'},
+    {id:'me5', name:'Planche gainage', target:'3 x 45 s'}
+  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer."},
+  {day:'Jeudi', type:'repos', label:'Récupération active', desc:'45 à 60 min de marche continue à allure modérée sur le tapis, plus quelques étirements. Séance volontairement légère — elle protège la régularité sur la durée.'},
+  {day:'Vendredi', type:'muscu', label:'Haut du corps — Tirage', exercises:[
     {id:'ve3', name:'Rowing haltères buste penché', target:'4 x 12'},
-    {id:'ve4', name:'Fentes arrière', target:'3 x 12'},
-    {id:'ve5', name:'Gainage planche latérale', target:'3 x 20-30 s / côté'}
-  ]},
-  {day:'Samedi', type:'cardio', label:'Tapis — fractionné ou longue marche', desc:"20 min de fractionné sur tapis, ou 45 à 60 min de marche à allure soutenue en variant l'inclinaison. Le tapis prend le relais quand le temps ne donne pas envie de sortir."},
+    {id:'lu2', name:'Rowing haltère un bras', target:'4 x 10 / bras'},
+    {id:'lu4', name:'Curl biceps haltères', target:'3 x 12'},
+    {id:'ve5', name:'Gainage planche latérale', target:'3 x 30 s / côté'}
+  ], finisher:"10 min de cardio tapis en fin de séance (allure modérée) pour clôturer."},
+  {day:'Samedi', type:'cardio', label:'Cardio long', desc:"45 à 60 min de marche à allure soutenue ou fractionné long, en variant l'inclinaison régulièrement pour ne pas s'ennuyer."},
   {day:'Dimanche', type:'repos', label:'Repos', desc:'Repos complet. Mobilité ou étirements en option, rien d\'obligatoire.'}
 ];
 
@@ -386,7 +386,8 @@ const EXERCISE_INFO = {
   ve2:{cat:'Épaules', position:"Assis ou debout, un haltère dans chaque main au niveau des épaules, paumes vers l'avant.", mouvement:"Pousse les haltères au-dessus de la tête jusqu'à extension presque complète des bras, puis redescends contrôlé.", attention:"Évite de trop cambrer le dos — engage les abdos pour rester droit."},
   ve3:{cat:'Tirage — dos', position:"Penché en avant depuis les hanches, dos plat, genoux légèrement fléchis, un haltère dans chaque main bras tendus vers le sol.", mouvement:"Tire les deux haltères vers les côtes en gardant les coudes proches du corps, redescends contrôlé.", attention:"Garde le dos plat tout du long ; ne redresse pas le buste pour tirer plus lourd."},
   ve4:{cat:'Jambes', position:"Debout, un haltère dans chaque main le long du corps.", mouvement:"Fais un grand pas en arrière, plie les deux genoux à 90°, puis reviens à la position de départ avant de changer de jambe.", attention:"Le buste reste droit, le genou avant ne dépasse pas la pointe du pied."},
-  ve5:{cat:'Gainage', position:"Appui sur un avant-bras et le côté d'un pied, corps aligné, hanche non posée au sol.", mouvement:"Maintiens la position en gardant les hanches hautes et alignées, respire normalement.", attention:"Ne laisse pas la hanche s'affaisser vers le sol — c'est ça qui travaille les obliques."}
+  ve5:{cat:'Gainage', position:"Appui sur un avant-bras et le côté d'un pied, corps aligné, hanche non posée au sol.", mouvement:"Maintiens la position en gardant les hanches hautes et alignées, respire normalement.", attention:"Ne laisse pas la hanche s'affaisser vers le sol — c'est ça qui travaille les obliques."},
+  me6:{cat:'Jambes', position:"Debout, un haltère dans chaque main le long du corps, pieds légèrement écartés (idéalement talons dans le vide sur une marche pour plus d'amplitude).", mouvement:"Monte sur la pointe des pieds le plus haut possible, contracte les mollets en haut, puis redescends lentement sous contrôle.", attention:"Pas de rebond — c'est la descente lente qui travaille le plus le muscle."}
 };
 
 function proteinTarget(){
@@ -503,7 +504,7 @@ function renderDays(){
             <button onclick="logExercise('${ex.id}')">Noter</button>
           </div>
         </div>`;
-      }).join('');
+      }).join('') + (plan.finisher ? `<div class="cardio-desc">🏃 ${plan.finisher}</div>` : '');
     } else {
       bodyHtml = `<div class="cardio-desc">${plan.desc}</div>`;
     }
