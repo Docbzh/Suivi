@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Muscu</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #EEF3F1;
+    --card: #FFFFFF;
+    --ink: #14232B;
+    --muted: #5B6C73;
+    --line: #D5DFDC;
+    --sun: #F2B632;
+    --sun-ink: #2A1E00;
+    --dusk: #3B3FA8;
+    --dusk-ink: #FFFFFF;
+    --ok: #1F8A5B;
+    --font: "Bricolage Grotesque", -apple-system, "SF Pro Rounded", system-ui, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1A1F; --card: #17262D; --ink: #E8F0EE; --muted: #93A5AB; --line: #263A43;
+      --dusk: #7C80F0; --dusk-ink: #0B0C33; --ok: #4CC58B;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1A1F; --card: #17262D; --ink: #E8F0EE; --muted: #93A5AB; --line: #263A43;
+    --dusk: #7C80F0; --dusk-ink: #0B0C33; --ok: #4CC58B;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font);
+    min-height: 100vh; min-height: 100dvh;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 20px 18px 40px; }
+  [hidden] { display: none !important; }
+  h1 { font-size: 34px; line-height: 1.05; margin: 8px 0 4px; font-weight: 800; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); font-size: 16px; margin: 0 0 22px; }
+
+  /* Semaine */
+  .week { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 18px; }
+  .week-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .week-top b { font-size: 18px; }
+  .week-top span { color: var(--muted); font-size: 15px; }
+  .dots { display: flex; gap: 8px; }
+  .dot { flex: 1; height: 14px; border-radius: 7px; background: var(--line); }
+  .dot.on { background: var(--ok); }
+
+  /* Gros boutons de mode */
+  .mode {
+    display: block; width: 100%; text-align: left; border: 0; border-radius: 26px;
+    padding: 22px 22px 20px; margin-bottom: 14px; font-family: inherit; cursor: pointer;
+    position: relative; overflow: hidden; min-height: 132px;
+  }
+  .mode:active { transform: scale(0.985); }
+  .mode .t { display: block; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+  .mode .w { display: block; font-size: 17px; font-weight: 700; margin-top: 2px; opacity: .9; }
+  .mode .d { display: block; font-size: 15px; margin-top: 10px; opacity: .8; font-weight: 500; }
+  .mode.midi { background: var(--sun); color: var(--sun-ink); }
+  .mode.soir { background: var(--dusk); color: var(--dusk-ink); }
+  .mode svg { position: absolute; right: 18px; top: 18px; width: 54px; height: 54px; opacity: .9; }
+
+  .link {
+    display: block; width: 100%; background: transparent; border: 1.5px dashed var(--line);
+    color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700;
+    padding: 14px; border-radius: 16px; margin-bottom: 8px; cursor: pointer;
+  }
+  .rule { color: var(--muted); font-size: 15px; text-align: center; margin: 14px 8px 22px; line-height: 1.4; }
+
+  .hist h2 { font-size: 18px; margin: 0 0 8px; }
+  .hist ul { list-style: none; margin: 0; padding: 0; }
+  .hist li { display: flex; justify-content: space-between; padding: 11px 2px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .hist li span:last-child { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 15px; }
+
+  /* Séance */
+  .run-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .quit { border: 1px solid var(--line); background: var(--card); color: var(--ink); font-family: inherit; font-size: 16px; font-weight: 700; padding: 10px 16px; border-radius: 14px; cursor: pointer; }
+  .badge { font-size: 15px; font-weight: 700; padding: 8px 14px; border-radius: 999px; }
+  body[data-mode="midi"] .badge, body[data-mode="midi"] .go, body[data-mode="midi"] .bar i { background: var(--sun); color: var(--sun-ink); }
+  body[data-mode="soir"] .badge, body[data-mode="soir"] .go, body[data-mode="soir"] .bar i { background: var(--dusk); color: var(--dusk-ink); }
+  .bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin-bottom: 26px; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 5px; transition: width .3s ease; }
+  .step { color: var(--muted); font-size: 16px; margin-bottom: 6px; }
+  .ex { font-size: 38px; line-height: 1.05; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 14px; }
+  .reps { font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin: 0 0 6px; }
+  .reps small { font-size: 22px; font-weight: 700; color: var(--muted); letter-spacing: 0; }
+  .tip { font-size: 17px; color: var(--muted); line-height: 1.45; margin: 16px 0 28px; max-width: 34ch; }
+  .go { display: block; width: 100%; border: 0; border-radius: 22px; font-family: inherit; font-size: 24px; font-weight: 800; padding: 22px; cursor: pointer; }
+  .go:active { transform: scale(0.985); }
+  .rest-num { font-size: 120px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; margin: 8px 0 8px; font-variant-numeric: tabular-nums; }
+  .next { font-size: 18px; color: var(--muted); margin-bottom: 26px; }
+  .next b { color: var(--ink); }
+  .row { display: flex; gap: 10px; }
+  .row .sec { flex: 1; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font-family: inherit; font-size: 18px; font-weight: 700; padding: 18px; border-radius: 18px; cursor: pointer; }
+
+  /* Fin */
+  .done-mark { width: 88px; height: 88px; border-radius: 50%; background: var(--ok); display: grid; place-items: center; margin: 30px 0 18px; }
+  .done-mark svg { width: 46px; height: 46px; }
+  .done h1 { font-size: 38px; }
+  .done p { font-size: 18px; color: var(--muted); line-height: 1.45; margin: 0 0 28px; }
+  .home-btn { display: block; width: 100%; border: 0; border-radius: 22px; background: var(--ink); color: var(--bg); font-family: inherit; font-size: 20px; font-weight: 800; padding: 20px; cursor: pointer; }
+
+  button:focus-visible { outline: 3px solid var(--ok); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body data-mode="midi">
+<div class="wrap">
+
+  <!-- ACCUEIL -->
+  <section id="home">
+    <h1>Muscu</h1>
+    <p class="sub">Où es-tu aujourd'hui ?</p>
+
+    <div class="week">
+      <div class="week-top"><b id="weekTxt">0 sur 3 cette semaine</b><span>objectif : 3</span></div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <button class="mode midi" id="btnMidi" type="button">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true">
+        <circle cx="32" cy="32" r="11"/>
+        <path d="M32 6v8M32 50v8M6 32h8M50 32h8M13.6 13.6l5.7 5.7M44.7 44.7l5.7 5.7M13.6 50.4l5.7-5.7M44.7 19.3l5.7-5.7"/>
+      </svg>
+      <span class="t">Télétravail</span>
+      <span class="w">Séance du midi</span>
+      <span class="d">3 tours · 5 exercices · environ 20 min</span>
+    </button>
+
+    <button class="mode soir" id="btnSoir" type="button">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M48 40A20 20 0 0 1 24 12a20 20 0 1 0 24 28z"/>
+      </svg>
+      <span class="t">Sur site</span>
+      <span class="w">Séance du soir</span>
+      <span class="d">2 tours · 4 exercices · environ 10 min</span>
+    </button>
+
+    <button class="link" id="btnSoir1" type="button">Trop fatigué ce soir : 1 seul tour (5 min)</button>
+    <button class="link" id="btnRing" type="button">J'ai fait Ring Fit (samedi)</button>
+
+    <p class="rule">Tu n'as qu'une règle : commence. Même 5 minutes comptent comme une séance.</p>
+
+    <div class="hist">
+      <h2>Dernières séances</h2>
+      <ul id="histList"></ul>
+      <p class="empty" id="histEmpty">Aucune séance pour l'instant. La première est la plus dure.</p>
+    </div>
+  </section>
+
+  <!-- SÉANCE -->
+  <section id="run" hidden>
+    <div class="run-top">
+      <button class="quit" id="quit" type="button">Quitter</button>
+      <span class="badge" id="badge">Midi</span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+
+    <div id="work">
+      <div class="step" id="stepTxt"></div>
+      <h2 class="ex" id="exName"></h2>
+      <div class="reps" id="exReps"></div>
+      <p class="tip" id="exTip"></p>
+      <button class="go" id="doneBtn" type="button">Fait</button>
+    </div>
+
+    <div id="rest" hidden>
+      <div class="step" id="restLabel">Repos</div>
+      <div class="rest-num" id="restNum">30</div>
+      <div class="next">Ensuite : <b id="nextName"></b></div>
+      <div class="row">
+        <button class="sec" id="plus" type="button">+15 s</button>
+        <button class="sec" id="skip" type="button">Passer</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIN -->
+  <section id="done" class="done" hidden>
+    <div class="done-mark">
+      <svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 25l9 9 19-20"/></svg>
+    </div>
+    <h1 id="doneTitle">Séance validée</h1>
+    <p id="doneTxt"></p>
+    <button class="home-btn" id="backHome" type="button">Retour à l'accueil</button>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var KEY = 'muscu:v1';
+  var GOAL = 3;
+  var memoryStore = [];
+
+  var EX = {
+    squat:  { n: 'Squat goblet',       r: '12', u: 'répétitions',       t: "Haltère contre la poitrine, dos droit. Descends jusqu'à ce que les cuisses soient parallèles au sol." },
+    squat10:{ n: 'Squat goblet',       r: '10', u: 'répétitions',       t: "Haltère contre la poitrine, dos droit. Descends jusqu'à ce que les cuisses soient parallèles au sol." },
+    pompe:  { n: 'Pompes',             r: '10', u: 'répétitions',       t: "Corps gainé. Sur les genoux ou mains surélevées sur une chaise si c'est trop dur." },
+    pompe8: { n: 'Pompes',             r: '8',  u: 'répétitions',       t: "Corps gainé. Sur les genoux ou mains surélevées sur une chaise si c'est trop dur." },
+    rowing: { n: 'Rowing haltère',     r: '10', u: 'par côté',          t: "Une main et un genou sur une chaise, dos plat. Tire le coude vers la hanche." },
+    epaules:{ n: 'Développé épaules',  r: '10', u: 'répétitions',       t: "Debout, ventre serré. Pousse les haltères au-dessus de la tête sans cambrer le dos." },
+    epaules8:{n: 'Développé épaules',  r: '8',  u: 'répétitions',       t: "Debout, ventre serré. Pousse les haltères au-dessus de la tête sans cambrer le dos." },
+    fentes: { n: 'Fentes',             r: '8',  u: 'par jambe',        t: "Grand pas en avant, genou avant au-dessus du pied. Redescends bien droit." }
+  };
+
+  var PLANS = {
+    midi: { label: 'Midi',  rounds: 3, exos: ['squat','pompe','rowing','epaules','fentes'], restEx: 25, restRound: 60 },
+    soir: { label: 'Soir',  rounds: 2, exos: ['squat10','pompe8','rowing','epaules8'],       restEx: 20, restRound: 45 }
+  };
+
+  var S = { mode: 'midi', plan: null, rounds: 0, r: 0, i: 0, timer: null, endAt: 0, lock: null, kind: 'midi' };
+
+  function $(id) { return document.getElementById(id); }
+
+  /* Stockage */
+  function load() {
+    try {
+      var v = localStorage.getItem(KEY);
+      if (v) { var a = JSON.parse(v); if (Array.isArray(a)) return a; }
+    } catch (e) {}
+    return memoryStore.slice();
+  }
+  function save(list) {
+    memoryStore = list.slice();
+    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  /* Dates */
+  function weekStart(d) {
+    var x = new Date(d); x.setHours(0,0,0,0);
+    var day = (x.getDay() + 6) % 7; // lundi = 0
+    x.setDate(x.getDate() - day);
+    return x;
+  }
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    var j = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'][d.getDay()];
+    return j + ' ' + d.getDate() + '/' + (d.getMonth() + 1);
+  }
+  var KIND = { midi: 'Télétravail · midi', soir: 'Sur site · soir', soir1: 'Sur site · 1 tour', ring: 'Ring Fit' };
+
+  /* Accueil */
+  function renderHome() {
+    var list = load();
+    var ws = weekStart(new Date()).getTime();
+    var n = 0;
+    list.forEach(function (s) { if (new Date(s.d).getTime() >= ws) n++; });
+    $('weekTxt').textContent = n + ' sur ' + GOAL + ' cette semaine';
+    var dots = $('dots'); dots.innerHTML = '';
+    for (var k = 0; k < Math.max(GOAL, n); k++) {
+      var el = document.createElement('div');
+      el.className = 'dot' + (k < n ? ' on' : '');
+      dots.appendChild(el);
+    }
+    var ul = $('histList'); ul.innerHTML = '';
+    var recent = list.slice().sort(function (a, b) { return new Date(b.d) - new Date(a.d); }).slice(0, 8);
+    recent.forEach(function (s) {
+      var li = document.createElement('li');
+      var a = document.createElement('span'); a.textContent = KIND[s.m] || 'Séance';
+      var b = document.createElement('span'); b.textContent = fmtDate(s.d);
+      li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+    });
+    $('histEmpty').hidden = recent.length > 0;
+  }
+
+  function show(id) {
+    ['home','run','done'].forEach(function (s) { $(s).hidden = (s !== id); });
+    window.scrollTo(0, 0);
+  }
+
+  /* Séance */
+  function totalSteps() { return S.rounds * S.plan.exos.length; }
+  function doneSteps() { return S.r * S.plan.exos.length + S.i; }
+
+  function start(mode, rounds, kind) {
+    S.mode = mode; S.plan = PLANS[mode]; S.rounds = rounds; S.kind = kind;
+    S.r = 0; S.i = 0;
+    document.body.setAttribute('data-mode', mode);
+    $('badge').textContent = S.plan.label + (rounds === 1 ? ' · 1 tour' : '');
+    show('run');
+    showWork();
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock.request('screen').then(function (l) { S.lock = l; }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+
+  function showWork() {
+    var id = S.plan.exos[S.i], e = EX[id];
+    $('work').hidden = false; $('rest').hidden = true;
+    $('stepTxt').textContent = 'Tour ' + (S.r + 1) + ' sur ' + S.rounds + ' · exercice ' + (S.i + 1) + ' sur ' + S.plan.exos.length;
+    $('exName').textContent = e.n;
+    $('exReps').innerHTML = e.r + ' <small></small>';
+    $('exReps').querySelector('small').textContent = e.u;
+    $('exTip').textContent = e.t;
+    $('bar').style.width = Math.round(doneSteps() / totalSteps() * 100) + '%';
+  }
+
+  function nextPosition() {
+    var r = S.r, i = S.i + 1, newRound = false;
+    if (i >= S.plan.exos.length) { i = 0; r++; newRound = true; }
+    return { r: r, i: i, newRound: newRound };
+  }
+
+  function onDone() {
+    var nx = nextPosition();
+    if (nx.r >= S.rounds) { finish(); return; }
+    var secs = nx.newRound ? S.plan.restRound : S.plan.restEx;
+    startRest(secs, nx);
+  }
+
+  function startRest(secs, nx) {
+    $('work').hidden = true; $('rest').hidden = false;
+    $('restLabel').textContent = nx.newRound ? 'Repos entre deux tours' : 'Repos';
+    $('nextName').textContent = EX[S.plan.exos[nx.i]].n;
+    $('bar').style.width = Math.round((doneSteps() + 1) / totalSteps() * 100) + '%';
+    S.endAt = Date.now() + secs * 1000;
+    S.pending = nx;
+    tick();
+    clearInterval(S.timer);
+    S.timer = setInterval(tick, 250);
+  }
+
+  function tick() {
+    var left = Math.max(0, Math.ceil((S.endAt - Date.now()) / 1000));
+    $('restNum').textContent = left;
+    if (left <= 0) endRest();
+  }
+
+  function endRest() {
+    clearInterval(S.timer); S.timer = null;
+    if (S.pending) { S.r = S.pending.r; S.i = S.pending.i; S.pending = null; }
+    showWork();
+  }
+
+  function releaseLock() {
+    try { if (S.lock) { S.lock.release(); S.lock = null; } } catch (e) {}
+  }
+
+  function finish() {
+    clearInterval(S.timer); S.timer = null; releaseLock();
+    record(S.kind, S.rounds);
+    var msgs = [
+      'Tu as fait ta séance. Le plus dur, c\'était de commencer, et c\'est fait.',
+      'Une séance de plus dans les jambes. La régularité fait le reste.',
+      'Validé. Ton corps te remercie, ton sommeil aussi.'
+    ];
+    $('doneTxt').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    show('done');
+  }
+
+  function record(kind, rounds) {
+    var list = load();
+    list.push({ d: new Date().toISOString(), m: kind, r: rounds });
+    save(list.slice(-200));
+  }
+
+  function quit() {
+    clearInterval(S.timer); S.timer = null; S.pending = null; releaseLock();
+    goHome();
+  }
+
+  function goHome() {
+    renderHome(); show('home');
+  }
+
+  /* Événements */
+  $('btnMidi').addEventListener('click', function () { start('midi', PLANS.midi.rounds, 'midi'); });
+  $('btnSoir').addEventListener('click', function () { start('soir', PLANS.soir.rounds, 'soir'); });
+  $('btnSoir1').addEventListener('click', function () { start('soir', 1, 'soir1'); });
+  $('btnRing').addEventListener('click', function () {
+    record('ring', 0); renderHome();
+  });
+  $('doneBtn').addEventListener('click', onDone);
+  $('skip').addEventListener('click', endRest);
+  $('plus').addEventListener('click', function () { S.endAt += 15000; tick(); });
+  $('quit').addEventListener('click', quit);
+  $('backHome').addEventListener('click', goHome);
+
+  renderHome();
+})();
+</script>
+</body>
+</html>
