@@ -51,10 +51,34 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
 .zone{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--work);border:1px solid #5a2a1e;border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:middle}
 .ex p{color:var(--muted);font-size:14px;margin-top:3px}
 .reps{color:var(--text)!important;font-weight:600;font-size:15px!important}
+
+.ex{cursor:pointer}
+.ex:active{border-color:var(--work)}
+.see{display:inline-block;margin-top:6px;color:var(--rest);font-size:13px;font-weight:600}
+.link{background:none;border:0;color:var(--rest);font-family:var(--body);font-size:15px;font-weight:600;text-decoration:underline;margin-top:8px;cursor:pointer}
+#sheet{position:fixed;inset:0;z-index:30;display:none;background:rgba(0,0,0,.65);align-items:flex-end}
+#sheet.on{display:flex}
+.sh{background:var(--bg);border-top:1px solid var(--line);border-radius:20px 20px 0 0;width:100%;max-height:92%;overflow-y:auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.sh-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sh-h h2{font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;line-height:1.05}
+.x{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;flex:none}
+.x:focus-visible{outline:2px solid var(--rest)}
+.pan{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.pan figure{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 6px 8px}
+.pan svg{width:100%;height:auto;display:block}
+.pan figcaption{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center}
+.bd{stroke:var(--text);stroke-width:6;stroke-linecap:round;fill:none}
+.far{stroke:var(--muted);stroke-width:6;stroke-linecap:round;fill:none}
+.hd{fill:var(--panel);stroke:var(--text);stroke-width:5}
+.db{fill:var(--work)}
+.fl{stroke:var(--line);stroke-width:3;stroke-linecap:round}
+.tip{background:#1b1f26;border-left:3px solid var(--rest);border-radius:8px;padding:10px 12px;margin-top:12px;font-size:14px}
+.tip b{color:var(--rest)}
 .note{color:var(--muted);font-size:13px;margin-top:14px}
 .dock{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 70%,transparent)}
 .btn{width:100%;border:0;border-radius:14px;padding:16px;background:var(--work);color:#fff;font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .btn.ghost{background:var(--panel);border:1px solid var(--line);color:var(--text);font-size:20px;padding:12px}
+
 /* Timer */
 #run{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));gap:14px}
 #run.on{display:flex}
@@ -90,6 +114,14 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
 
 <div class="dock"><button class="btn" id="start" type="button">Démarrer</button></div>
 
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t">
+  <div class="sh">
+    <div class="sh-h"><h2 id="sh-t"></h2><button class="x" id="sh-x" type="button" aria-label="Fermer">✕</button></div>
+    <div class="pan" id="sh-pan"></div>
+    <div id="sh-body"></div>
+  </div>
+</div>
+
 <section id="run" class="work" aria-live="polite">
   <div class="top"><span id="step">1 / 1</span><span id="left"></span></div>
   <div class="bar"><i id="prog"></i></div>
@@ -97,7 +129,7 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
   <div class="phase" id="phase">Effort</div>
   <div class="clock" id="clock">12</div>
   <div class="unit" id="unit"></div>
-  <div class="cur"><h2 id="name"></h2><p id="cue"></p></div>
+  <div class="cur"><h2 id="name"></h2><p id="cue"></p><button class="link" id="see" type="button">Voir le mouvement</button></div>
   <div class="next" id="next"></div>
   <button class="btn" id="done" type="button">Série faite</button>
   <div class="row">
@@ -166,7 +198,7 @@ function render(){
   }).join("");
   $("summary").innerHTML='<span><b>'+L.label+'</b></span><span><b>'+LX.length+'</b> exercices</span><span><b>'+L.tours+'</b> série'+(L.tours>1?'s':'')+' par exercice</span><span>≈ <b>'+fmt(total(s))+'</b></span>';
   for(i=0;i<LX.length;i++){var e=EX[LX[i]];
-    h+='<div class="ex"><div class="num">'+(i+1)+'</div><div><h3>'+e.name+'<span class="zone">'+e.zone+'</span></h3><p class="reps">'+L.tours+' × '+e.r+(e.u?' ('+e.u+')':'')+'</p><p>'+e.cue+'</p></div></div>';}
+    h+='<div class="ex" role="button" tabindex="0" data-i="'+i+'"><div class="num">'+(i+1)+'</div><div><h3>'+e.name+'<span class="zone">'+e.zone+'</span></h3><p class="reps">'+L.tours+' × '+e.r+(e.u?' ('+e.u+')':'')+'</p><p>'+e.cue+'</p><span class="see">Voir le mouvement</span></div></div>';}
   $("list").innerHTML=h;
   var n=0;try{n=parseInt(localStorage.getItem("halteres_done")||"0",10)||0}catch(x){}
   $("count").textContent=n?("Séances terminées sur cet appareil : "+n):"";
@@ -177,6 +209,81 @@ $("seg").addEventListener("click",function(ev){
 $("tabs").addEventListener("click",function(ev){
   var b=ev.target.closest(".tab");if(!b)return;cur=+b.getAttribute("data-m");render();
 });
+
+/* Poses : [tête, épaule, coude, main, hanche, genou, pied] (+ 2e jambe). Vue de profil, ou de face (f:1, côté droit miroir). */
+var POSES={
+ "Écarté-presse couché":{db:1,tip:"Ne laisse pas les coudes descendre sous le niveau du torse.",
+  a:[40,158,60,165,60,132,60,100,115,165,145,130,165,172],b:[40,158,60,165,45,160,58,132,115,165,145,130,165,172]},
+ "Élévation frontale à genoux":{db:1,tip:"Pas d'élan, ne cambre pas le dos.",
+  a:[108,50,108,72,114,98,118,124,108,128,108,172,68,172],b:[108,50,108,72,135,72,162,70,108,128,108,172,68,172]},
+ "Curl à genoux":{db:1,tip:"Les coudes ne bougent pas, seul l'avant-bras monte.",
+  a:[108,50,108,72,112,98,116,124,108,128,108,172,68,172],b:[108,50,108,72,112,98,132,80,108,128,108,172,68,172]},
+ "Kickback buste penché":{db:1,tip:"Le bras du dessus reste collé au buste, seul l'avant-bras s'ouvre.",
+  a:[158,78,140,86,112,98,116,126,100,128,100,172,62,172],b:[158,78,140,86,112,98,82,100,100,128,100,172,62,172]},
+ "Rowing buste penché":{db:1,tip:"Dos plat, regard vers le sol. Les coudes passent derrière le corps.",
+  a:[158,78,140,86,142,114,144,142,100,128,100,172,62,172],b:[158,78,140,86,112,104,120,128,100,128,100,172,62,172]},
+ "Haussements d'épaules":{db:1,foot:1,tip:"Monte les épaules droit vers les oreilles, sans les tourner.",
+  a:[100,30,100,48,106,74,110,98,100,102,100,140,100,178],b:[100,22,100,40,106,68,110,92,100,102,100,140,100,178]},
+ "Russian twist":{db:1,tip:"Tourne les épaules, pas seulement les bras. Garde le dos droit.",
+  a:[68,102,80,118,108,134,122,138,105,166,140,134,160,170],b:[68,102,80,118,104,148,124,162,105,166,140,134,160,170]},
+ "Crunch haltères":{db:1,tip:"Menton légèrement rentré, ne tire pas sur la nuque.",
+  a:[40,158,60,165,61,140,62,115,115,165,145,130,165,172],b:[66,136,80,150,82,130,84,106,115,165,145,130,165,172]},
+ "Squat gobelet":{db:1,foot:1,tip:"Genoux dans l'axe des pieds, talons bien au sol.",
+  a:[100,30,100,48,112,78,114,60,100,102,104,140,100,178],b:[108,62,100,78,110,98,120,84,72,130,124,128,106,178]},
+ "Soulevé de terre jambes tendues":{db:1,foot:1,tip:"Dos plat. Le mouvement vient des hanches, pas du dos.",
+  a:[100,30,100,48,108,76,110,104,100,102,100,140,98,178],b:[140,92,122,96,124,122,124,150,68,100,80,142,88,178]},
+ "Hip thrust au sol":{db:1,tip:"Pousse dans les talons, menton rentré, fessiers serrés en haut.",
+  a:[40,160,60,165,88,160,112,150,115,165,148,130,168,172],b:[40,160,60,165,88,150,108,114,112,128,148,130,168,172]},
+ "Fente arrière":{db:1,foot:1,tip:"Le genou avant reste au-dessus de la cheville.",
+  a:[100,30,100,48,108,76,110,102,100,102,100,140,100,178,100,140,100,178],b:[102,56,102,74,108,98,110,120,102,122,130,124,130,178,88,168,60,172]},
+ "Squat sumo":{db:1,f:1,foot:1,tip:"Genoux dans l'axe des pointes de pieds, buste droit.",
+  a:[100,30,118,50,112,78,104,100,110,104,134,142,142,178],b:[100,66,118,86,112,112,104,132,112,138,148,142,146,178]},
+ "Mollets debout":{db:1,foot:1,tip:"Monte lentement, pause en haut, descends en 2 secondes.",
+  a:[100,30,100,48,106,76,110,102,100,102,100,140,100,178],b:[100,18,100,36,106,64,110,90,100,90,100,128,100,166]},
+ "Superman au sol":{db:0,tip:"Regard vers le sol, nuque dans le prolongement du dos.",
+  a:[50,160,66,168,44,168,22,168,112,168,148,168,184,168],b:[46,146,66,160,44,148,22,140,112,166,148,156,184,146]},
+ "Relevés de jambes allongé":{db:0,tip:"Lombaires plaquées au sol. Plie un peu les genoux si le bas du dos décolle.",
+  a:[34,160,56,166,80,166,100,170,104,166,146,166,184,160],b:[34,160,56,166,80,166,100,170,104,166,106,122,106,78]}
+};
+function mir(x){return 200-x}
+function fig(c,db,front,foot){
+  var H=[c[0],c[1]],S=[c[2],c[3]],E=[c[4],c[5]],W=[c[6],c[7]],P=[c[8],c[9]],K=[c[10],c[11]],F=[c[12],c[13]];
+  var o='<line class="fl" x1="10" y1="180" x2="190" y2="180"/>';
+  function L(a,b,cl){return '<line class="'+cl+'" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>'}
+  function M(q){return [mir(q[0]),q[1]]}
+  function dbl(q){return db?'<rect class="db" x="'+(q[0]-10)+'" y="'+(q[1]-4)+'" width="20" height="8" rx="3"/>':''}
+  function ft(q,d){return foot?L(q,[q[0]+d,180],'bd'):''}
+  if(front){
+    var S2=M(S),E2=M(E),W2=M(W),P2=M(P),K2=M(K),F2=M(F);
+    o+=L(S,S2,'bd')+L(S,P,'bd')+L(S2,P2,'bd')+L(P,P2,'bd')+L(P,K,'bd')+L(K,F,'bd')+L(P2,K2,'bd')+L(K2,F2,'bd');
+    o+=ft(F,12)+ft(F2,-12)+L(S,E,'bd')+L(E,W,'bd')+L(S2,E2,'bd')+L(E2,W2,'bd')+dbl([100,W[1]]);
+    o+='<circle class="hd" cx="100" cy="'+H[1]+'" r="10"/>';
+    return o;
+  }
+  if(c.length>14){var K2b=[c[14],c[15]],F2b=[c[16],c[17]];o+=L(P,K2b,'far')+L(K2b,F2b,'far')+ft(F2b,14).replace(/class="bd"/g,'class="far"');}
+  o+=L(S,P,'bd')+L(P,K,'bd')+L(K,F,'bd')+ft(F,14)+L(S,H,'bd')+L(S,E,'bd')+L(E,W,'bd')+dbl(W);
+  o+='<circle class="hd" cx="'+H[0]+'" cy="'+H[1]+'" r="10"/>';
+  return o;
+}
+function openSheet(e){
+  var P=POSES[e.name];if(!P)return;
+  $("sh-t").textContent=e.name;
+  var svg=function(c){return '<svg viewBox="0 0 200 190" role="img" aria-label="Posture">'+fig(c,P.db,P.f,P.foot)+'</svg>'};
+  $("sh-pan").innerHTML='<figure>'+svg(P.a)+'<figcaption>Départ</figcaption></figure><figure>'+svg(P.b)+'<figcaption>Fin</figcaption></figure>';
+  $("sh-body").innerHTML='<p><span class="zone" style="margin-left:0">'+e.zone+'</span> <b>'+e.r+' répétitions</b>'+(e.u?' ('+e.u+')':'')+'</p><p style="margin-top:10px">'+e.cue+'</p><div class="tip"><b>À éviter :</b> '+P.tip+'</div>';
+  $("sheet").className="on";$("sh-x").focus();
+}
+function closeSheet(){$("sheet").className=""}
+$("sh-x").addEventListener("click",closeSheet);
+$("sheet").addEventListener("click",function(ev){if(ev.target===this)closeSheet()});
+document.addEventListener("keydown",function(ev){if(ev.key==="Escape")closeSheet()});
+$("list").addEventListener("click",function(ev){
+  var d=ev.target.closest(".ex");if(!d)return;openSheet(EX[exList(LEVELS[cur])[+d.getAttribute("data-i")]]);
+});
+$("list").addEventListener("keydown",function(ev){
+  if(ev.key!=="Enter"&&ev.key!==" ")return;var d=ev.target.closest(".ex");if(!d)return;ev.preventDefault();openSheet(EX[exList(LEVELS[cur])[+d.getAttribute("data-i")]]);
+});
+$("see").addEventListener("click",function(){var s=S[idx];if(s&&s.k==="work")openSheet(EX[s.e])});
 
 /* Timer */
 var S=[],idx=0,endAt=0,tick=null,ac=null,lastBeep=-1,wl=null;
@@ -203,14 +310,14 @@ function show(){
     $("clock").textContent=e.r;
     $("unit").textContent=e.u?("répétitions ("+e.u+")"):"répétitions";
     $("name").textContent=e.name;$("cue").textContent=e.cue;zones(e.z);
-    $("next").textContent="";$("done").style.display="";$("done").textContent="Série faite";
+    $("next").textContent="";$("see").style.display="";$("done").style.display="";$("done").textContent="Série faite";
     beep(880,.25);
   }else{
     endAt=Date.now()+s.d*1000;
     $("phase").textContent=s.k==="warm"?"Échauffement":(s.brk?"Pause entre séries":"Repos");
     $("unit").textContent="secondes";
-    if(s.k==="warm"){$("name").textContent="Échauffement";$("cue").textContent=s.cue;zones(-1);$("next").textContent="";$("done").textContent="Échauffement fini";}
-    else{var n=EX[s.e];$("name").textContent="Respire";$("cue").textContent="";zones(-1);$("next").textContent="Ensuite : "+n.name+" ("+n.r+(n.u?", "+n.u:"")+")";$("done").style.display="none";}
+    if(s.k==="warm"){$("name").textContent="Échauffement";$("cue").textContent=s.cue;zones(-1);$("next").textContent="";$("done").textContent="Échauffement fini";$("see").style.display="none";}
+    else{var n=EX[s.e];$("name").textContent="Respire";$("cue").textContent="";zones(-1);$("next").textContent="Ensuite : "+n.name+" ("+n.r+(n.u?", "+n.u:"")+")";$("done").style.display="none";$("see").style.display="none";}
     beep(520,.25);
     upd();
   }
