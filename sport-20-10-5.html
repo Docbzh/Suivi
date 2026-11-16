@@ -65,7 +65,8 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
 .x:focus-visible{outline:2px solid var(--rest)}
 .pan{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
 .pan figure{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 6px 8px}
-.pan svg{width:100%;height:auto;display:block}
+.pan img{width:100%;height:auto;display:block;border-radius:8px;background:var(--line)}
+.cap{color:var(--muted);font-size:12px;margin-top:8px}
 .pan figcaption{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center}
 .bd{stroke:var(--text);stroke-width:6;stroke-linecap:round;fill:none}
 .far{stroke:var(--muted);stroke-width:6;stroke-linecap:round;fill:none}
@@ -210,67 +211,31 @@ $("tabs").addEventListener("click",function(ev){
   var b=ev.target.closest(".tab");if(!b)return;cur=+b.getAttribute("data-m");render();
 });
 
-/* Poses : [tête, épaule, coude, main, hanche, genou, pied] (+ 2e jambe). Vue de profil, ou de face (f:1, côté droit miroir). */
+/* Photos de départ / fin : banque libre de droits free-exercise-db (domaine public), copiées dans img/. */
 var POSES={
- "Écarté-presse couché":{db:1,tip:"Ne laisse pas les coudes descendre sous le niveau du torse.",
-  a:[40,158,60,165,60,132,60,100,115,165,145,130,165,172],b:[40,158,60,165,45,160,58,132,115,165,145,130,165,172]},
- "Élévation frontale à genoux":{db:1,tip:"Pas d'élan, ne cambre pas le dos.",
-  a:[108,50,108,72,114,98,118,124,108,128,108,172,68,172],b:[108,50,108,72,135,72,162,70,108,128,108,172,68,172]},
- "Curl à genoux":{db:1,tip:"Les coudes ne bougent pas, seul l'avant-bras monte.",
-  a:[108,50,108,72,112,98,116,124,108,128,108,172,68,172],b:[108,50,108,72,112,98,132,80,108,128,108,172,68,172]},
- "Kickback buste penché":{db:1,tip:"Le bras du dessus reste collé au buste, seul l'avant-bras s'ouvre.",
-  a:[158,78,140,86,112,98,116,126,100,128,100,172,62,172],b:[158,78,140,86,112,98,82,100,100,128,100,172,62,172]},
- "Rowing buste penché":{db:1,tip:"Dos plat, regard vers le sol. Les coudes passent derrière le corps.",
-  a:[158,78,140,86,142,114,144,142,100,128,100,172,62,172],b:[158,78,140,86,112,104,120,128,100,128,100,172,62,172]},
- "Haussements d'épaules":{db:1,foot:1,tip:"Monte les épaules droit vers les oreilles, sans les tourner.",
-  a:[100,30,100,48,106,74,110,98,100,102,100,140,100,178],b:[100,22,100,40,106,68,110,92,100,102,100,140,100,178]},
- "Russian twist":{db:1,tip:"Tourne les épaules, pas seulement les bras. Garde le dos droit.",
-  a:[68,102,80,118,108,134,122,138,105,166,140,134,160,170],b:[68,102,80,118,104,148,124,162,105,166,140,134,160,170]},
- "Crunch haltères":{db:1,tip:"Menton légèrement rentré, ne tire pas sur la nuque.",
-  a:[40,158,60,165,61,140,62,115,115,165,145,130,165,172],b:[66,136,80,150,82,130,84,106,115,165,145,130,165,172]},
- "Squat gobelet":{db:1,foot:1,tip:"Genoux dans l'axe des pieds, talons bien au sol.",
-  a:[100,30,100,48,112,78,114,60,100,102,104,140,100,178],b:[108,62,100,78,110,98,120,84,72,130,124,128,106,178]},
- "Soulevé de terre jambes tendues":{db:1,foot:1,tip:"Dos plat. Le mouvement vient des hanches, pas du dos.",
-  a:[100,30,100,48,108,76,110,104,100,102,100,140,98,178],b:[140,92,122,96,124,122,124,150,68,100,80,142,88,178]},
- "Hip thrust au sol":{db:1,tip:"Pousse dans les talons, menton rentré, fessiers serrés en haut.",
-  a:[40,160,60,165,88,160,112,150,115,165,148,130,168,172],b:[40,160,60,165,88,150,108,114,112,128,148,130,168,172]},
- "Fente arrière":{db:1,foot:1,tip:"Le genou avant reste au-dessus de la cheville.",
-  a:[100,30,100,48,108,76,110,102,100,102,100,140,100,178,100,140,100,178],b:[102,56,102,74,108,98,110,120,102,122,130,124,130,178,88,168,60,172]},
- "Squat sumo":{db:1,f:1,foot:1,tip:"Genoux dans l'axe des pointes de pieds, buste droit.",
-  a:[100,30,118,50,112,78,104,100,110,104,134,142,142,178],b:[100,66,118,86,112,112,104,132,112,138,148,142,146,178]},
- "Mollets debout":{db:1,foot:1,tip:"Monte lentement, pause en haut, descends en 2 secondes.",
-  a:[100,30,100,48,106,76,110,102,100,102,100,140,100,178],b:[100,18,100,36,106,64,110,90,100,90,100,128,100,166]},
- "Superman au sol":{db:0,tip:"Regard vers le sol, nuque dans le prolongement du dos.",
-  a:[50,160,66,168,44,168,22,168,112,168,148,168,184,168],b:[46,146,66,160,44,148,22,140,112,166,148,156,184,146]},
- "Relevés de jambes allongé":{db:0,tip:"Lombaires plaquées au sol. Plie un peu les genoux si le bas du dos décolle.",
-  a:[34,160,56,166,80,166,100,170,104,166,146,166,184,160],b:[34,160,56,166,80,166,100,170,104,166,106,122,106,78]}
+ "Écarté-presse couché":{img:"Dumbbell_Flyes",note:"Sur la photo, l'exercice est fait sur un banc. Toi, tu es allongé sur le tapis.",tip:"Ne laisse pas les coudes descendre sous le niveau du torse."},
+ "Élévation frontale à genoux":{img:"Front_Dumbbell_Raise",note:"Sur la photo, l'exercice est debout et un bras à la fois. Toi, tu es à genoux.",tip:"Pas d'élan, ne cambre pas le dos."},
+ "Curl à genoux":{img:"Dumbbell_Bicep_Curl",note:"Sur la photo, l'exercice est debout. Toi, tu es à genoux.",tip:"Les coudes ne bougent pas, seul l'avant-bras monte."},
+ "Kickback buste penché":{img:"Tricep_Dumbbell_Kickback",note:"Sur la photo, une main et un genou sont appuyés sur un banc. Toi, tu es à genoux sur le tapis, une main au sol.",tip:"Le bras du dessus reste collé au buste, seul l'avant-bras s'ouvre."},
+ "Rowing buste penché":{img:"Bent_Over_Two-Dumbbell_Row",note:"Sur la photo, l'exercice est debout. Toi, tu es à genoux, buste penché.",tip:"Dos plat, regard vers le sol. Les coudes passent derrière le corps."},
+ "Haussements d'épaules":{img:"Dumbbell_Shrug",tip:"Monte les épaules droit vers les oreilles, sans les tourner."},
+ "Russian twist":{img:"Russian_Twist",note:"Sur la photo, les pieds sont calés. Toi, tu peux les garder au sol.",tip:"Tourne les épaules, pas seulement les bras. Garde le dos droit."},
+ "Crunch haltères":{img:"Crunches",note:"Sur la photo, il n'y a pas d'haltère. Toi, tu en tiens un ou deux au-dessus de la poitrine.",tip:"Menton légèrement rentré, ne tire pas sur la nuque."},
+ "Squat gobelet":{img:"Goblet_Squat",note:"Sur la photo, c'est un kettlebell. Toi, tu tiens un haltère contre la poitrine.",tip:"Genoux dans l'axe des pieds, talons bien au sol."},
+ "Soulevé de terre jambes tendues":{img:"Stiff-Legged_Dumbbell_Deadlift",tip:"Dos plat. Le mouvement vient des hanches, pas du dos."},
+ "Hip thrust au sol":{img:"Butt_Lift_Bridge",note:"Sur la photo, il n'y a pas d'haltère. Toi, tu en poses un sur le bas du ventre.",tip:"Pousse dans les talons, menton rentré, fessiers serrés en haut."},
+ "Fente arrière":{img:"Dumbbell_Rear_Lunge",tip:"Le genou avant reste au-dessus de la cheville."},
+ "Squat sumo":{img:"Plie_Dumbbell_Squat",tip:"Genoux dans l'axe des pointes de pieds, buste droit."},
+ "Mollets debout":{img:"Standing_Dumbbell_Calf_Raise",note:"La photo est prise de dos.",tip:"Monte lentement, pause en haut, descends en 2 secondes."},
+ "Superman au sol":{img:"Superman",tip:"Regard vers le sol, nuque dans le prolongement du dos."},
+ "Relevés de jambes allongé":{img:"Flat_Bench_Lying_Leg_Raise",note:"Sur la photo, l'exercice est fait sur un banc. Toi, tu es allongé sur le tapis.",tip:"Lombaires plaquées au sol. Plie un peu les genoux si le bas du dos décolle."}
 };
-function mir(x){return 200-x}
-function fig(c,db,front,foot){
-  var H=[c[0],c[1]],S=[c[2],c[3]],E=[c[4],c[5]],W=[c[6],c[7]],P=[c[8],c[9]],K=[c[10],c[11]],F=[c[12],c[13]];
-  var o='<line class="fl" x1="10" y1="180" x2="190" y2="180"/>';
-  function L(a,b,cl){return '<line class="'+cl+'" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>'}
-  function M(q){return [mir(q[0]),q[1]]}
-  function dbl(q){return db?'<rect class="db" x="'+(q[0]-10)+'" y="'+(q[1]-4)+'" width="20" height="8" rx="3"/>':''}
-  function ft(q,d){return foot?L(q,[q[0]+d,180],'bd'):''}
-  if(front){
-    var S2=M(S),E2=M(E),W2=M(W),P2=M(P),K2=M(K),F2=M(F);
-    o+=L(S,S2,'bd')+L(S,P,'bd')+L(S2,P2,'bd')+L(P,P2,'bd')+L(P,K,'bd')+L(K,F,'bd')+L(P2,K2,'bd')+L(K2,F2,'bd');
-    o+=ft(F,12)+ft(F2,-12)+L(S,E,'bd')+L(E,W,'bd')+L(S2,E2,'bd')+L(E2,W2,'bd')+dbl([100,W[1]]);
-    o+='<circle class="hd" cx="100" cy="'+H[1]+'" r="10"/>';
-    return o;
-  }
-  if(c.length>14){var K2b=[c[14],c[15]],F2b=[c[16],c[17]];o+=L(P,K2b,'far')+L(K2b,F2b,'far')+ft(F2b,14).replace(/class="bd"/g,'class="far"');}
-  o+=L(S,P,'bd')+L(P,K,'bd')+L(K,F,'bd')+ft(F,14)+L(S,H,'bd')+L(S,E,'bd')+L(E,W,'bd')+dbl(W);
-  o+='<circle class="hd" cx="'+H[0]+'" cy="'+H[1]+'" r="10"/>';
-  return o;
-}
 function openSheet(e){
   var P=POSES[e.name];if(!P)return;
   $("sh-t").textContent=e.name;
-  var svg=function(c){return '<svg viewBox="0 0 200 190" role="img" aria-label="Posture">'+fig(c,P.db,P.f,P.foot)+'</svg>'};
-  $("sh-pan").innerHTML='<figure>'+svg(P.a)+'<figcaption>Départ</figcaption></figure><figure>'+svg(P.b)+'<figcaption>Fin</figcaption></figure>';
-  $("sh-body").innerHTML='<p><span class="zone" style="margin-left:0">'+e.zone+'</span> <b>'+e.r+' répétitions</b>'+(e.u?' ('+e.u+')':'')+'</p><p style="margin-top:10px">'+e.cue+'</p><div class="tip"><b>À éviter :</b> '+P.tip+'</div>';
+  var im=function(k,l){return '<figure><img src="img/'+P.img+'_'+k+'.jpg" alt="'+e.name+' : '+l+'" width="480" height="320"><figcaption>'+l+'</figcaption></figure>'};
+  $("sh-pan").innerHTML=im(0,"Départ")+im(1,"Fin");
+  $("sh-body").innerHTML='<p><span class="zone" style="margin-left:0">'+e.zone+'</span> <b>'+e.r+' répétitions</b>'+(e.u?' ('+e.u+')':'')+'</p><p style="margin-top:10px">'+e.cue+'</p><div class="tip"><b>À éviter :</b> '+P.tip+'</div>'+(P.note?'<p class="cap">'+P.note+'</p>':'')+'<p class="cap">Photos : free-exercise-db (domaine public).</p>';
   $("sheet").className="on";$("sh-x").focus();
 }
 function closeSheet(){$("sheet").className=""}
