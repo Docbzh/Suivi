@@ -34,6 +34,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16
 h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
 .sub{color:var(--muted);font-size:14px;margin-top:6px}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 14px}
+.seg{grid-template-columns:repeat(2,1fr);margin-bottom:0}
+.seg .tab{font-size:22px;padding:14px 4px}
 .tab{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 4px;color:var(--text);
   font-family:var(--display);font-weight:700;font-size:30px;line-height:1;cursor:pointer;text-align:center}
 .tab small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted);margin-top:4px}
@@ -62,7 +64,7 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
 .bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--ph);transition:width .25s linear}
 .zones{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.z{font-size:10px;text-align:center;padding:6px 0;border-radius:8px;background:var(--panel);color:var(--muted);border:1px solid var(--line);letter-spacing:.02em}
+.z{font-size:9.5px;overflow:hidden;white-space:nowrap;text-align:center;padding:6px 0;border-radius:8px;background:var(--panel);color:var(--muted);border:1px solid var(--line);letter-spacing:.02em}
 .z.on{background:var(--work);border-color:var(--work);color:#fff;font-weight:700}
 .phase{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.12em;color:var(--ph);text-transform:uppercase;text-align:center;margin-top:auto}
 .clock{font-family:var(--display);font-weight:700;font-size:min(42vw,190px);line-height:.9;text-align:center;font-variant-numeric:tabular-nums;color:var(--ph)}
@@ -77,8 +79,9 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
 </head>
 <body>
 <h1>Haltères 20-10-5</h1>
-<p class="sub">8 exercices, 1 par zone, sur le tapis. Séries et répétitions, 20 s de repos entre deux séries.</p>
+<p class="sub">Haut ou bas du corps. 8 exercices, 1 par zone. Séries et répétitions, 20 s de repos entre deux séries.</p>
 
+<div class="tabs seg" id="seg" role="group" aria-label="Partie du corps"></div>
 <div class="tabs" id="tabs" role="group" aria-label="Durée de la séance"></div>
 <div class="summary" id="summary"></div>
 <div class="list" id="list"></div>
@@ -104,7 +107,7 @@ h1{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.02e
 </section>
 
 <script>
-var EX=[
+var EXS={haut:[
  {z:0,zone:"Pecs",r:12,u:"",name:"Écarté-presse couché",cue:"Allongé, genoux fléchis. Haltères au-dessus du torse, descends coudes ouverts, remonte en serrant les pecs."},
  {z:1,zone:"Épaules",r:12,u:"",name:"Élévation frontale à genoux",cue:"Bras tendus, monte jusqu'à hauteur d'épaules. Dos droit, sans balancer."},
  {z:2,zone:"Biceps",r:12,u:"",name:"Curl à genoux",cue:"Coudes collés au corps. Monte en expirant, descends en 2 secondes."},
@@ -113,26 +116,38 @@ var EX=[
  {z:5,zone:"Trapèzes",r:15,u:"",name:"Haussements d'épaules",cue:"Haltères le long des cuisses. Monte les épaules vers les oreilles, pause 1 seconde."},
  {z:6,zone:"Obliques",r:20,u:"10 par côté",name:"Russian twist",cue:"Assis, buste incliné, haltère entre les mains. Tourne d'un côté à l'autre."},
  {z:7,zone:"Abdos",r:15,u:"",name:"Crunch haltères",cue:"Allongé, haltères au-dessus de la poitrine. Enroule le buste sans tirer sur la nuque."}
-];
-var ZN=["Pecs","Épaules","Biceps","Triceps","Dos","Trapèzes","Obliq.","Abdos"];
+],bas:[
+ {z:0,zone:"Quadris",r:12,u:"",name:"Squat gobelet",cue:"Haltère tenu contre la poitrine, pieds largeur d'épaules. Descends cuisses parallèles au sol, dos droit, pousse dans les talons."},
+ {z:1,zone:"Ischios",r:12,u:"",name:"Soulevé de terre jambes tendues",cue:"Haltères devant les cuisses, jambes presque tendues. Pousse les fesses vers l'arrière, dos plat, descends sous les genoux puis remonte."},
+ {z:2,zone:"Fessiers",r:15,u:"",name:"Hip thrust au sol",cue:"Dos au sol, genoux fléchis, haltère sur le bas du ventre. Monte le bassin, serre les fessiers 1 seconde en haut."},
+ {z:3,zone:"Jambes",r:10,u:"par jambe",name:"Fente arrière",cue:"Un grand pas en arrière, genou arrière frôle le sol. Haltères le long du corps, buste droit, pousse dans la jambe avant."},
+ {z:4,zone:"Adducteurs",r:12,u:"",name:"Squat sumo",cue:"Pieds très écartés, pointes vers l'extérieur, haltère entre les jambes. Descends droit, serre l'intérieur des cuisses en remontant."},
+ {z:5,zone:"Mollets",r:20,u:"",name:"Mollets debout",cue:"Haltères le long du corps. Monte sur la pointe des pieds, pause 1 seconde en haut, descends lentement."},
+ {z:6,zone:"Lombaires",r:12,u:"",name:"Superman au sol",cue:"À plat ventre, bras tendus devant. Décolle bras et jambes ensemble, tiens 1 seconde, repose doucement."},
+ {z:7,zone:"Abdos",r:15,u:"",name:"Relevés de jambes allongé",cue:"Dos plaqué au sol, mains sous les fesses. Monte les jambes à la verticale, redescends sans toucher le sol."}
+]};
+var mode="haut",EX=EXS.haut;
+var ZNS={haut:["Pecs","Épaules","Biceps","Triceps","Dos","Trapèzes","Obliq.","Abdos"],bas:["Quadris","Ischios","Fessiers","Jambes","Addu.","Mollets","Lombes","Abdos"]};
+var ZN=ZNS.haut;
 var LEVELS={
  20:{label:"Motivé en télétravail",ex:[0,1,2,3,4,5,6,7],tours:2,warm:120,brk:60},
  10:{label:"Retour de journée sur site",ex:[0,1,2,3,4,5,6,7],tours:1,warm:90,brk:0},
- 5:{label:"Trop crevé",ex:[0,1,4,7,6],tours:1,warm:0,brk:0}
+ 5:{label:"Trop crevé",ex:{haut:[0,1,4,7,6],bas:[0,1,2,5,7]},tours:1,warm:0,brk:0}
 };
 var SETSEC=40,REST=20,cur=20;
 var $=function(i){return document.getElementById(i)};
+function exList(L){return Array.isArray(L.ex)?L.ex:L.ex[mode]}
 
 function build(min){
-  var L=LEVELS[min],s=[],t,i;
+  var L=LEVELS[min],LX=exList(L),s=[],t,i;
   if(L.warm)s.push({k:"warm",d:L.warm,name:"Échauffement",cue:"Cercles de bras, 10 squats lents, rotations de buste, quelques montées de genoux."});
   for(t=0;t<L.tours;t++){
-    for(i=0;i<L.ex.length;i++){
-      s.push({k:"work",e:L.ex[i],set:t+1,sets:L.tours});
-      var last=(t===L.tours-1&&i===L.ex.length-1);
+    for(i=0;i<LX.length;i++){
+      s.push({k:"work",e:LX[i],set:t+1,sets:L.tours});
+      var last=(t===L.tours-1&&i===LX.length-1);
       if(!last){
-        if(i===L.ex.length-1&&L.brk)s.push({k:"rest",d:L.brk,brk:1,e:L.ex[0]});
-        else s.push({k:"rest",d:REST,e:L.ex[i+1<L.ex.length?i+1:0]});
+        if(i===LX.length-1&&L.brk)s.push({k:"rest",d:L.brk,brk:1,e:LX[0]});
+        else s.push({k:"rest",d:REST,e:LX[i+1<LX.length?i+1:0]});
       }
     }
   }
@@ -142,18 +157,23 @@ function fmt(sec){var m=Math.floor(sec/60),r=sec%60;return m+" min"+(r?" "+r+" s
 function total(s){return s.reduce(function(a,x){return a+(x.k==="work"?SETSEC:x.d)},0)}
 
 function render(){
-  var L=LEVELS[cur],s=build(cur),h="",i;
-  [20,10,5].forEach(function(m){});
+  var L=LEVELS[cur],LX=exList(L),s=build(cur),h="",i;
+  $("seg").innerHTML=[["haut","Haut du corps"],["bas","Bas du corps"]].map(function(m){
+    return '<button class="tab" type="button" data-mode="'+m[0]+'" aria-pressed="'+(m[0]===mode)+'">'+m[1]+'</button>';
+  }).join("");
   $("tabs").innerHTML=[20,10,5].map(function(m){
     return '<button class="tab" type="button" data-m="'+m+'" aria-pressed="'+(m===cur)+'">'+m+'<small>min</small></button>';
   }).join("");
-  $("summary").innerHTML='<span><b>'+L.label+'</b></span><span><b>'+L.ex.length+'</b> exercices</span><span><b>'+L.tours+'</b> série'+(L.tours>1?'s':'')+' par exercice</span><span>≈ <b>'+fmt(total(s))+'</b></span>';
-  for(i=0;i<L.ex.length;i++){var e=EX[L.ex[i]];
+  $("summary").innerHTML='<span><b>'+L.label+'</b></span><span><b>'+LX.length+'</b> exercices</span><span><b>'+L.tours+'</b> série'+(L.tours>1?'s':'')+' par exercice</span><span>≈ <b>'+fmt(total(s))+'</b></span>';
+  for(i=0;i<LX.length;i++){var e=EX[LX[i]];
     h+='<div class="ex"><div class="num">'+(i+1)+'</div><div><h3>'+e.name+'<span class="zone">'+e.zone+'</span></h3><p class="reps">'+L.tours+' × '+e.r+(e.u?' ('+e.u+')':'')+'</p><p>'+e.cue+'</p></div></div>';}
   $("list").innerHTML=h;
   var n=0;try{n=parseInt(localStorage.getItem("halteres_done")||"0",10)||0}catch(x){}
   $("count").textContent=n?("Séances terminées sur cet appareil : "+n):"";
 }
+$("seg").addEventListener("click",function(ev){
+  var b=ev.target.closest(".tab");if(!b)return;mode=b.getAttribute("data-mode");EX=EXS[mode];ZN=ZNS[mode];render();
+});
 $("tabs").addEventListener("click",function(ev){
   var b=ev.target.closest(".tab");if(!b)return;cur=+b.getAttribute("data-m");render();
 });
